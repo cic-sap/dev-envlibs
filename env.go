@@ -107,11 +107,6 @@ func GetAllExtraValuesFilesWithCache(owner string, repo string, version string, 
 	return
 }
 
-var harborMap map[string]bool
-var harborLock sync.Mutex
-func init() {
-	harborMap = make(map[string]bool)
-}
 func FetchPkg(owner string, repo string, version string, root string) (path string, tgzPath string, err error) {
 	for ;; {
 		path = root + fmt.Sprintf("/%s%s%s", owner, repo, version) + util.RandomString(5)
@@ -128,26 +123,7 @@ func FetchPkg(owner string, repo string, version string, root string) (path stri
 	uc := util.NewExecCmd(path)
 	ho := strings.ToLower(owner)
 	ctx := context.Background()
-	harborLock.Lock()
-	if _, ok := harborMap[ho]; !ok {
-		sr := uc.Exec(ctx, fmt.Sprintf("helm repo add harbor-%s https://harbor.eurekacloud.io/chartrepo/%s", ho, ho))
-		if sr.Error != nil {
-			err = sr.Error
-			log.Println("error: repo add", sr.Stderr)
-			harborLock.Unlock()
-			return
-		}
-		harborMap[ho] = true
-	}
-	sr := uc.Exec(ctx, fmt.Sprintf("helm repo update"))
-	if sr.Error != nil {
-		err = sr.Error
-		log.Println("error: repo update", sr.Stderr)
-		harborLock.Unlock()
-		return
-	}
-	harborLock.Unlock()
-	sr = uc.Exec(ctx, fmt.Sprintf("helm fetch harbor-%s/%s --version %s", ho, repo, version))
+	sr := uc.Exec(ctx, fmt.Sprintf("curl https://harbor.eurekacloud.io/chartrepo/%s/charts/%s-%s.tgz  --output %s-%s.tgz", ho, repo, version, repo, version))
 	if sr.Error != nil {
 		log.Println("error: repo fetch", sr.Stderr)
 		err = sr.Error
