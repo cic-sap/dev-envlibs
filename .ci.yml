@@ -1,30 +1,7 @@
 version: 2
 
 flow:
-- name: preproc
-  command:
-  - sed -i 's/${GIT_COMMIT}/{{.env.GIT_COMMIT}}/' .ci/chart/*.yaml
-  - sed -i 's/${DOCKER_REGISTRY}/{{.env.DOCKER_REGISTRY}}/' .ci/chart/*.yaml
 - name: build
   runtime: golang:1.13-alpine
   command:
-  - go build -o app
-- name: kaniko
-  type: kaniko
-  image-args:
-  - dockerfile: .ci/builder/app/Dockerfile
-    context: ./
-    destination: {{.env.DOCKER_REGISTRY}}/s4/envlibs:{{.env.GIT_COMMIT}}
-  - dockerfile: ../.ci/builder/test/Dockerfile
-    context: ./slow-test
-    destination: {{.env.DOCKER_REGISTRY}}/s4/envlibs-test:{{.env.GIT_COMMIT}}
-- name: helm
-  type: helm
-  context: .ci/chart
-  version: 0.0.1-{{.env.GIT_COMMIT}}
-- name: deploy
-  type: auto-deploy
-  cluster: e2e
-  namespace: template
-  version: 0.0.1-{{.env.GIT_COMMIT}}  
-  when: {{eq .env.GIT_BRANCH "develop"}}
+  - go test -v ./
