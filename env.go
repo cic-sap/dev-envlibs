@@ -138,16 +138,16 @@ func FetchPkg(owner string, repo string, version string, root string) (path stri
 			return
 		}
 		harborMap[ho] = true
-		sr = uc.Exec(ctx, fmt.Sprintf("helm repo update"))
-		if sr.Error != nil {
-			err = sr.Error
-			log.Println("error: repo update", sr.Stderr)
-			harborLock.Unlock()
-			return
-		}
+	}
+	sr := uc.Exec(ctx, fmt.Sprintf("helm repo update"))
+	if sr.Error != nil {
+		err = sr.Error
+		log.Println("error: repo update", sr.Stderr)
+		harborLock.Unlock()
+		return
 	}
 	harborLock.Unlock()
-	sr := uc.Exec(ctx, fmt.Sprintf("helm fetch harbor-%s/%s --version %s", ho, repo, version))
+	sr = uc.Exec(ctx, fmt.Sprintf("helm fetch harbor-%s/%s --version %s", ho, repo, version))
 	if sr.Error != nil {
 		log.Println("error: repo fetch", sr.Stderr)
 		err = sr.Error
