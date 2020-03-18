@@ -2,4 +2,7 @@ module envlibs
 
 go 1.13
 
-require github.com/smartystreets/goconvey v1.6.4
+require (
+	github.com/jarcoal/httpmock v1.0.5
+	github.com/smartystreets/goconvey v1.6.4
+)
