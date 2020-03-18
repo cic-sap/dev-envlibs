@@ -6,5 +6,7 @@ flow:
 - name: build
   runtime: golang:1.13.1
   command:
+  - apk add curl
+  - mkdir output
   - export GOPATH=$PWD/.go
-  - go test -v -count=1 ./
+  - go test -v -count=1 -cover ./
