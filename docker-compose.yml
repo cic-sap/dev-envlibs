@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  envlibs:
+    image: s4/envlibs:dev
+    build:
+      context: .
+      dockerfile: .ci/builder/app/Dockerfile.dev
+    ports:
+      - 8081:8081
+  envlibs-test:
+    image: s4/envlibs-test:dev
+    build:
+      context: ./slow-test
+      dockerfile: ../.ci/builder/test/Dockerfile
+    links:
+    # NOTE: the test targets 80 port instead of 8081!
+    - envlibs
