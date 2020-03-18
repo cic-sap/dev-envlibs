@@ -1,7 +1,10 @@
 version: 2
 
+cache:
+  - .go
 flow:
 - name: build
   runtime: golang:1.13-alpine
   command:
+  - export GOPATH=$PWD/.go
   - go test -v ./
