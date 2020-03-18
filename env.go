@@ -2,8 +2,8 @@ package envlibs
 
 import (
 	"encoding/json"
-	"envlibs/util"
 	"fmt"
+	"github.wdf.sap.corp/Eureka/envlibs/util"
 	"io/ioutil"
 	"net/http"
 	"strings"
