@@ -4,7 +4,7 @@ cache:
   - .go
 flow:
 - name: build
-  runtime: golang:1.13-alpine
+  runtime: golang:1.13.1
   command:
   - export GOPATH=$PWD/.go
   - go test -v -count=1 ./
