@@ -28,6 +28,7 @@ func GetEnvs() (envs map[string]string, err error){
 	}
 	defer resp.Body.Close()
 	bs, err := ioutil.ReadAll(resp.Body)
+	log.Println("[envlibs]env  return", string(bs))
 	if err != nil {
 	    return
 	}
@@ -36,6 +37,7 @@ func GetEnvs() (envs map[string]string, err error){
 	if err != nil {
 	    return
 	}
+	log.Printf("[envlibs]env  return unmarshal %+v\n", envs)
 	return
 }
 
@@ -58,6 +60,7 @@ func  GetMatch(cluster, namespace string, envs map[string]string) (stage string,
 func GetOriginMatch(cluster, namespace string) (stage string, found bool, err error) {
 	r, err := GetEnvs()
 	if err != nil {
+		log.Println("[envlibs] get env failed", err)
 	    return
 	}
 	stage, found = GetMatch(cluster, namespace, r)
