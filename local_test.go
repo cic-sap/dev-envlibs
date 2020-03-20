@@ -20,4 +20,11 @@ func TestFetchPkg(t *testing.T) {
 		So(rs[0], ShouldEqual, "values.testing.yaml")
 	})
 
+	Convey("p1", t, func() {
+		rs,fn, err := GetAllExtraValuesFilesWithCallback("Eureka", "go-server-with-multi-values", "0.0.1-66ff51ee864ccfdbe411d092b362854c34e279fb", "./output", true)
+		So(err, ShouldBeNil)
+		defer fn()
+		t.Logf("%+v, %+v",rs, err)
+	})
+
 }
