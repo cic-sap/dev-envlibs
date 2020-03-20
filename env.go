@@ -110,6 +110,23 @@ func GetAllExtraValuesFilesWithCache(owner string, repo string, version string, 
 	return
 }
 
+func GetAllExtraValuesFilesWithCallback(owner string, repo string, version string, root string, ab bool) (m map[string]string,fn func(), err error) {
+	path, tgzPath, err := FetchPkg(owner, repo, version, root)
+	if err != nil {
+		return
+	}
+	m = GetAllExtraValuesFiles(tgzPath)
+	if ab {
+		for k, _ := range m {
+			m[k] = tgzPath + "/" + m[k]
+		}
+	}
+	fn = func() {
+		util.Exec(context.Background(), "rm -rf "+path)
+	}
+	return
+}
+
 func FetchPkg(owner string, repo string, version string, root string) (path string, tgzPath string, err error) {
 	for ;; {
 		path = root + fmt.Sprintf("/%s%s%s", owner, repo, version) + util.RandomString(5)
