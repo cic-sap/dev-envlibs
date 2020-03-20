@@ -71,7 +71,7 @@ func Test_t1(t *testing.T) {
 		So(v, ShouldEqual, "hello")
 		So(err, ShouldBeNil)
 
-		v, ok, err = GetOriginMatch("canary", "qqq")
+		v, ok, err = GetOriginMatch("canary", "hello4")
 		So(ok, ShouldBeTrue)
 		So(v, ShouldEqual, "testing")
 		So(err, ShouldBeNil)
