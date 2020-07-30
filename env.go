@@ -118,7 +118,7 @@ func GetAllExtraValuesFilesWithCallback(owner, repo, version, root, harborUser, 
 	}
 	m = GetAllExtraValuesFiles(tgzPath)
 	if ab {
-		for k, _ := range m {
+		for k := range m {
 			m[k] = tgzPath + "/" + m[k]
 		}
 	}
@@ -160,19 +160,13 @@ func FetchPkg(owner, repo, version, root, harborUser, harborPwd string) (path st
 	return
 }
 
-func GetValues(owner, repo, version, root, cluster, namespace, harborUser, harborPwd string) (rs []string, err error) {
+func GetValues(owner, repo, version, root, cluster, namespace, harborUser, harborPwd, stage string) (rs []string, err error) {
 	m, err := GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborUser, harborPwd)
 	if err != nil {
 		return
 	}
-	stage, found, err := GetOriginMatch(cluster, namespace)
-	if err != nil {
-		return
-	}
-	if found {
-		if r, ok := m[stage]; ok {
-			rs = append(rs, r)
-		}
+	if r, ok := m[stage]; ok {
+		rs = append(rs, r)
 	}
 	if r, ok := m[namespace+"-"+cluster]; ok {
 		rs = append(rs, r)
