@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.wdf.sap.corp/Eureka/envlibs/util"
+	"github.com/cic-sap/dev-envlibs/util"
 	"io/ioutil"
 	"log"
 	"net/http"
