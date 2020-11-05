@@ -94,14 +94,14 @@ func GetAllExtraValuesFiles(path string) (m map[string]string) {
 
 var cm sync.Map
 
-func GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborUser, harborPwd string) (m map[string]string, err error) {
+func GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborHost, harborUser, harborPwd string) (m map[string]string, err error) {
 	k := fmt.Sprintf("%s:%s:%s", owner, repo, version)
 	v, ok := cm.Load(k)
 	if ok {
 		m = v.(map[string]string)
 		return
 	}
-	path, tgzPath, err := FetchPkg(owner, repo, version, root, harborUser, harborPwd)
+	path, tgzPath, err := FetchPkg(owner, repo, version, root, harborHost, harborUser, harborPwd)
 	if err != nil {
 		return
 	}
@@ -111,8 +111,8 @@ func GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborUser, har
 	return
 }
 
-func GetAllExtraValuesFilesWithCallback(owner, repo, version, root, harborUser, harborPwd string, ab bool) (m map[string]string, fn func(), err error) {
-	path, tgzPath, err := FetchPkg(owner, repo, version, root, harborUser, harborPwd)
+func GetAllExtraValuesFilesWithCallback(owner, repo, version, root, harborHost, harborUser, harborPwd string, ab bool) (m map[string]string, fn func(), err error) {
+	path, tgzPath, err := FetchPkg(owner, repo, version, root, harborHost, harborUser, harborPwd)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func GetAllExtraValuesFilesWithCallback(owner, repo, version, root, harborUser, 
 	return
 }
 
-func FetchPkg(owner, repo, version, root, harborUser, harborPwd string) (path string, tgzPath string, err error) {
+func FetchPkg(owner, repo, version, root, harborHost, harborUser, harborPwd string) (path string, tgzPath string, err error) {
 	for {
 		path = root + fmt.Sprintf("/%s%s%s", owner, repo, version) + util.RandomString(5)
 		_, ferr := os.Stat(path)
@@ -144,7 +144,7 @@ func FetchPkg(owner, repo, version, root, harborUser, harborPwd string) (path st
 	uc := util.NewExecCmd(path)
 	ho := strings.ToLower(owner)
 	ctx := context.Background()
-	sr := uc.Exec(ctx, fmt.Sprintf("curl https://harbor.eurekacloud.io/chartrepo/%s/charts/%s-%s.tgz -u %s:%s  --output %s-%s.tgz", ho, repo, version, harborUser, harborPwd, repo, version))
+	sr := uc.Exec(ctx, fmt.Sprintf("curl %s/chartrepo/%s/charts/%s-%s.tgz -u %s:%s  --output %s-%s.tgz", harborHost, ho, repo, version, harborUser, harborPwd, repo, version))
 	if sr.Error != nil {
 		log.Println("error: repo fetch", sr.Stderr)
 		err = sr.Error
@@ -160,8 +160,8 @@ func FetchPkg(owner, repo, version, root, harborUser, harborPwd string) (path st
 	return
 }
 
-func GetValues(owner, repo, version, root, cluster, namespace, harborUser, harborPwd, stage string) (rs []string, err error) {
-	m, err := GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborUser, harborPwd)
+func GetValues(owner, repo, version, root, cluster, namespace, harborHost, harborUser, harborPwd, stage string) (rs []string, err error) {
+	m, err := GetAllExtraValuesFilesWithCache(owner, repo, version, root, harborHost, harborUser, harborPwd)
 	if err != nil {
 		return
 	}
