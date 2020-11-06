@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.wdf.sap.corp/Eureka/envlibs/util"
+	"github.com/cic-sap/dev-envlibs/util"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,14 +13,14 @@ import (
 	"sync"
 )
 
-func GetEnvs() (envs map[string]string, err error){
+func GetEnvs() (envs map[string]string, err error) {
 	req, err := http.NewRequest("GET", "http://dev-info/env", nil)
 	if err != nil {
-	    return
+		return
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-	    return
+		return
 	}
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("code not match %d", resp.StatusCode)
@@ -30,18 +30,18 @@ func GetEnvs() (envs map[string]string, err error){
 	bs, err := ioutil.ReadAll(resp.Body)
 	log.Println("[envlibs]env  return", string(bs))
 	if err != nil {
-	    return
+		return
 	}
 	envs = make(map[string]string)
 	err = json.Unmarshal(bs, &envs)
 	if err != nil {
-	    return
+		return
 	}
 	log.Printf("[envlibs]env  return unmarshal %+v\n", envs)
 	return
 }
 
-func  GetMatch(cluster, namespace string, envs map[string]string) (stage string, found bool){
+func GetMatch(cluster, namespace string, envs map[string]string) (stage string, found bool) {
 	k := fmt.Sprintf("%s/%s", cluster, namespace)
 	if v, ok := envs[k]; ok {
 		found = true
@@ -61,7 +61,7 @@ func GetOriginMatch(cluster, namespace string) (stage string, found bool, err er
 	r, err := GetEnvs()
 	if err != nil {
 		log.Println("[envlibs] get env failed", err)
-	    return
+		return
 	}
 	stage, found = GetMatch(cluster, namespace, r)
 	return
@@ -82,7 +82,7 @@ func GetAllExtraValuesFiles(path string) (m map[string]string) {
 			return
 		}
 		fs := strings.Split(apath, ".")
-		fs = fs[1:(len(fs)-1)]
+		fs = fs[1:(len(fs) - 1)]
 		if len(fs) == 0 {
 			return
 		}
@@ -93,6 +93,7 @@ func GetAllExtraValuesFiles(path string) (m map[string]string) {
 }
 
 var cm sync.Map
+
 func GetAllExtraValuesFilesWithCache(owner string, repo string, version string, root string) (m map[string]string, err error) {
 	k := fmt.Sprintf("%s:%s:%s", owner, repo, version)
 	v, ok := cm.Load(k)
@@ -102,15 +103,15 @@ func GetAllExtraValuesFilesWithCache(owner string, repo string, version string, 
 	}
 	path, tgzPath, err := FetchPkg(owner, repo, version, root)
 	if err != nil {
-	    return
+		return
 	}
 	m = GetAllExtraValuesFiles(tgzPath)
-	util.Exec(context.Background(), "rm -rf " + path)
+	util.Exec(context.Background(), "rm -rf "+path)
 	cm.Store(k, m)
 	return
 }
 
-func GetAllExtraValuesFilesWithCallback(owner string, repo string, version string, root string, ab bool) (m map[string]string,fn func(), err error) {
+func GetAllExtraValuesFilesWithCallback(owner string, repo string, version string, root string, ab bool) (m map[string]string, fn func(), err error) {
 	path, tgzPath, err := FetchPkg(owner, repo, version, root)
 	if err != nil {
 		return
@@ -128,14 +129,14 @@ func GetAllExtraValuesFilesWithCallback(owner string, repo string, version strin
 }
 
 func FetchPkg(owner string, repo string, version string, root string) (path string, tgzPath string, err error) {
-	for ;; {
+	for {
 		path = root + fmt.Sprintf("/%s%s%s", owner, repo, version) + util.RandomString(5)
 		_, ferr := os.Stat(path)
 		if ferr != nil && os.IsNotExist(ferr) {
-			rs := util.Exec(context.Background(), "mkdir -p " + path)
+			rs := util.Exec(context.Background(), "mkdir -p "+path)
 			if rs.Error != nil {
 				err = rs.Error
-			    return
+				return
 			}
 			break
 		}
@@ -155,25 +156,25 @@ func FetchPkg(owner string, repo string, version string, root string) (path stri
 		err = rs.Error
 		return
 	}
-	tgzPath = path + "/" +  repo
+	tgzPath = path + "/" + repo
 	return
 }
 
-func GetValues(owner string, repo string, version string, root string, cluster , namespace string) (rs []string, err error) {
+func GetValues(owner string, repo string, version string, root string, cluster, namespace string) (rs []string, err error) {
 	m, err := GetAllExtraValuesFilesWithCache(owner, repo, version, root)
 	if err != nil {
-	    return
+		return
 	}
-	stage, found, err :=  GetOriginMatch(cluster, namespace)
+	stage, found, err := GetOriginMatch(cluster, namespace)
 	if err != nil {
-	    return
+		return
 	}
 	if found {
-		if r, ok :=  m[stage]; ok {
+		if r, ok := m[stage]; ok {
 			rs = append(rs, r)
 		}
 	}
-	if r, ok := m[namespace + "-" + cluster]; ok {
+	if r, ok := m[namespace+"-"+cluster]; ok {
 		rs = append(rs, r)
 	}
 	return

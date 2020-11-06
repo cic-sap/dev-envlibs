@@ -1,4 +1,4 @@
-module github.wdf.sap.corp/Eureka/envlibs
+module github.com/cic-sap/dev-envlibs
 
 go 1.13
 
